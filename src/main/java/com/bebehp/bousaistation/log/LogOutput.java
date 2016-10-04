@@ -6,12 +6,12 @@ import java.io.OutputStream;
 
 import javax.swing.JTextArea;
 
-public class JLogOutput extends OutputStream {
+public class LogOutput extends OutputStream {
 
 	private final JTextArea area;
 	private final ByteArrayOutputStream baos;
 
-	public JLogOutput(final JTextArea area) {
+	public LogOutput(final JTextArea area) {
 		this.area = area;
 		this.baos = new ByteArrayOutputStream();
 	}

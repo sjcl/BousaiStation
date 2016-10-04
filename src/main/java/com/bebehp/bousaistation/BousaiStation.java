@@ -2,6 +2,10 @@ package com.bebehp.bousaistation;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -9,12 +13,20 @@ import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
 
-import com.bebehp.bousaistation.log.JLogOutput;
 import com.bebehp.bousaistation.log.Log;
+import com.bebehp.bousaistation.log.LogOutput;
 
 public class BousaiStation {
 	private static BousaiStation station;
 	private final JFrame frame;
+
+	public static File DATA_DIR;
+	public static String OS_NAME;
+	public static String OS_VERSION;
+	public static String OS_ARCH;
+	public static String JAVA_VERSION;
+	public static String JAVA_VENDOR;
+	public static String SUN_ARCH_DATA_MODEL;
 
 	public BousaiStation(final JFrame frame) {
 		station = this;
@@ -28,14 +40,25 @@ public class BousaiStation {
 	public void preInit() {
 		final JTextArea area = new JTextArea();
 		area.setEditable(false);
-		area.setFont(new Font(Font.SERIF, Font.PLAIN, 12));
-		Log.init(new JLogOutput(area));
+		area.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+		Log.init(new LogOutput(area));
 
 		final JScrollPane scrollpane = new JScrollPane(area,
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollpane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.frame.getContentPane().add(scrollpane, BorderLayout.CENTER);
 		this.frame.setVisible(true);
+
+		System.out.println("Welcome to Bousai Station");
+		final SimpleDateFormat format = new SimpleDateFormat("MMM d, YYYY K:mm:ss aaaa", Locale.US);
+		System.out.println("Current time is " + format.format(new Date()));
+		System.out.println("System.getProperty('os.name') == '" + OS_NAME + "'");
+		System.out.println("System.getProperty('os.version') == '" + OS_VERSION + "'");
+		System.out.println("System.getProperty('os.arch') == '" + OS_ARCH + "'");
+		System.out.println("System.getProperty('java.version') == '" + JAVA_VERSION + "'");
+		System.out.println("System.getProperty('java.vendor') == '" + JAVA_VENDOR + "'");
+		System.out.println("System.getProperty('sun.arch.data.model') == '" + SUN_ARCH_DATA_MODEL + "'");
+
 	}
 
 	public void init() {
