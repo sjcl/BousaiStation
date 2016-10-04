@@ -17,10 +17,6 @@ public class Main extends JFrame {
 		BousaiStation.JAVA_VENDOR = System.getProperty("java.vendor");
 		BousaiStation.SUN_ARCH_DATA_MODEL = System.getProperty("sun.arch.data.model");
 		bousaiStation.preInit();
-		//		for (int i = 0; i < 100; i++) {
-		//			Log.info("BUBUBUBUBUBUBUBUBUBUBUBUBUBUBU!");
-		//			Log.info("BSC24!!!!!!!");
-		//	}
 	}
 
 	public Main(final String title) {

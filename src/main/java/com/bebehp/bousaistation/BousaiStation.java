@@ -13,6 +13,7 @@ import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
 
+import com.bebehp.bousaistation.deploader.DepLoader;
 import com.bebehp.bousaistation.log.Log;
 import com.bebehp.bousaistation.log.LogOutput;
 
@@ -41,13 +42,14 @@ public class BousaiStation {
 		final JTextArea area = new JTextArea();
 		area.setEditable(false);
 		area.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-		Log.init(new LogOutput(area));
 
 		final JScrollPane scrollpane = new JScrollPane(area,
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollpane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		this.frame.getContentPane().add(scrollpane, BorderLayout.CENTER);
 		this.frame.setVisible(true);
+
+		Log.init(new LogOutput(area));
 
 		System.out.println("Welcome to Bousai Station");
 		final SimpleDateFormat format = new SimpleDateFormat("MMM d, YYYY K:mm:ss aaaa", Locale.US);
@@ -58,7 +60,16 @@ public class BousaiStation {
 		System.out.println("System.getProperty('java.version') == '" + JAVA_VERSION + "'");
 		System.out.println("System.getProperty('java.vendor') == '" + JAVA_VENDOR + "'");
 		System.out.println("System.getProperty('sun.arch.data.model') == '" + SUN_ARCH_DATA_MODEL + "'");
+		Log.line();
 
+		System.out.println("Check Dependencies");
+		if (DepLoader.INSTANCE.readCSV().checkDep().foundDLTask()) {
+			System.out.println("Found the download tasks");
+			DepLoader.INSTANCE.download();
+		} else {
+			System.out.println("Dependencies will all present");
+		}
+		DepLoader.INSTANCE.addClassPath();
 	}
 
 	public void init() {
