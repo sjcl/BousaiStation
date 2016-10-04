@@ -1,4 +1,4 @@
-package com.bebehp.bousaistation;
+package com.bebehp.bousaistation.log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -6,12 +6,12 @@ import java.io.OutputStream;
 
 import javax.swing.JTextArea;
 
-public class JConsole extends OutputStream {
+public class JLogOutput extends OutputStream {
 
 	private final JTextArea area;
 	private final ByteArrayOutputStream baos;
 
-	public JConsole(final JTextArea area) {
+	public JLogOutput(final JTextArea area) {
 		this.area = area;
 		this.baos = new ByteArrayOutputStream();
 	}
