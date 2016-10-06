@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import com.bebehp.bousaistation.BousaiStation;
+import com.bebehp.bousaistation.Reference;
 import com.bebehp.bousaistation.log.Log;
 
 public class DepLoader {
@@ -37,26 +38,26 @@ public class DepLoader {
 
 	public DepLoader readCSV() {
 		final InputStream is = getClass().getResourceAsStream("dep.info");
-		if (is == null)
-			return this;
-		BufferedReader br;
-		try {
-			br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-			String line;
-			while((line = br.readLine()) != null) {
-				final String[] dep = line.split(",");
-				this.deps.add(new Dependencies(dep[0], dep[1]));
-			}
-			return this;
-		} catch (final UnsupportedEncodingException e) {
-			Log.warn(e);
-		} catch (final IOException e1) {
-			Log.warn(e1);
-		} finally {
+		if (is != null) {
+			BufferedReader br;
 			try {
-				is.close();
-			} catch (final IOException e) {
+				br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+				String line;
+				while((line = br.readLine()) != null) {
+					final String[] dep = line.split(",");
+					this.deps.add(new Dependencies(dep[0], dep[1]));
+				}
+				return this;
+			} catch (final UnsupportedEncodingException e) {
 				Log.warn(e);
+			} catch (final IOException e1) {
+				Log.warn(e1);
+			} finally {
+				try {
+					is.close();
+				} catch (final IOException e) {
+					Log.warn(e);
+				}
 			}
 		}
 		return this;
@@ -84,7 +85,7 @@ public class DepLoader {
 		FileOutputStream fos = null;
 		final long startTime = System.currentTimeMillis();
 		for (final Dependencies dep : this.deps) {
-			System.out.println("Downloading dep: " + dep.getLocal());
+			System.out.println("Downloading: " + dep.getRemote());
 			try {
 				downloadingFile = new File(libDir, dep.getLocal());
 				final URL remote = new URL(dep.getRemote());
@@ -92,7 +93,7 @@ public class DepLoader {
 				final HttpURLConnection connection = (HttpURLConnection) remote.openConnection();
 				connection.setConnectTimeout(10000);
 				connection.setReadTimeout(10000);
-				connection.setRequestProperty("User-Agent", "BousaiStation Downloader");
+				connection.setRequestProperty("User-Agent", Reference.ID + " Downloader");
 
 				if (connection.getResponseCode() != HttpURLConnection.HTTP_OK)
 					throw new RuntimeException();
@@ -107,9 +108,9 @@ public class DepLoader {
 			} catch (final Exception e) {
 				Log.warn(e);
 				System.out.println("A download error occured: " + dep.getLocal());
-			} finally {
 				if (downloadingFile != null)
 					downloadingFile.delete();
+			} finally {
 				try {
 					if (fos != null)
 						fos.close();
@@ -119,14 +120,17 @@ public class DepLoader {
 			}
 		}
 		final long endTime = System.currentTimeMillis()-startTime;
-		System.out.println("Download complete in " + String.valueOf(endTime) + " ms");
+		System.out.println("All of the download is complete");
+		System.out.println("Elapsed time: " + endTime + "ms");
 	}
 
 	public void addClassPath() {
 		try {
 			final Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-			if (method == null)
+			if (method == null) {
+				Log.fatal("URLClassLoader.addURL() is null!");;
 				return;
+			}
 			method.setAccessible(true);
 
 			for (final Dependencies dep : this.deps) {

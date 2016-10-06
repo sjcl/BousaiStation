@@ -20,6 +20,7 @@ import com.bebehp.bousaistation.log.LogOutput;
 public class BousaiStation {
 	private static BousaiStation station;
 	private final JFrame frame;
+	private final JScrollPane logArea;
 
 	public static File DATA_DIR;
 	public static String OS_NAME;
@@ -28,10 +29,12 @@ public class BousaiStation {
 	public static String JAVA_VERSION;
 	public static String JAVA_VENDOR;
 	public static String SUN_ARCH_DATA_MODEL;
+	public static String JAVA_SPECIFICATION_VESION;
 
 	public BousaiStation(final JFrame frame) {
 		station = this;
 		this.frame = frame;
+		this.logArea = getLogArea();
 	}
 
 	public JFrame getFrame() {
@@ -39,19 +42,10 @@ public class BousaiStation {
 	}
 
 	public void preInit() {
-		final JTextArea area = new JTextArea();
-		area.setEditable(false);
-		area.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-
-		final JScrollPane scrollpane = new JScrollPane(area,
-				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		scrollpane.setBorder(new EmptyBorder(0, 0, 0, 0));
-		this.frame.getContentPane().add(scrollpane, BorderLayout.CENTER);
+		this.frame.getContentPane().add(this.logArea, BorderLayout.CENTER);
 		this.frame.setVisible(true);
 
-		Log.init(new LogOutput(area));
-
-		System.out.println("Welcome to Bousai Station");
+		System.out.println("Welcome to " + Reference.NAME);
 		final SimpleDateFormat format = new SimpleDateFormat("MMM d, YYYY K:mm:ss aaaa", Locale.US);
 		System.out.println("Current time is " + format.format(new Date()));
 		System.out.println("System.getProperty('os.name') == '" + OS_NAME + "'");
@@ -69,14 +63,41 @@ public class BousaiStation {
 		} else {
 			System.out.println("Dependencies will all present");
 		}
-		DepLoader.INSTANCE.addClassPath();
+		if (!DepLoader.INSTANCE.getDeps().isEmpty()) {
+			Log.line();
+			DepLoader.INSTANCE.addClassPath();
+		}
+		System.out.println("Starting " + Reference.NAME);
+
+		try {
+			Thread.sleep(1500L);
+		} catch (final InterruptedException e) {
+			Log.warn(e);
+		}
+
+		this.frame.remove(this.logArea);
 	}
 
 	public void init() {
+		this.frame.setSize(900, 580);
+		this.frame.setLocationRelativeTo(null);
+		this.frame.setTitle(Reference.NAME);
 
 	}
 
 	public void postInit() {
 
+	}
+
+	public JScrollPane getLogArea() {
+		final JTextArea area = new JTextArea();
+		area.setEditable(false);
+		area.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+
+		final JScrollPane scrollpane = new JScrollPane(area,
+				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollpane.setBorder(new EmptyBorder(0, 0, 0, 0));
+		Log.init(new LogOutput(area));
+		return scrollpane;
 	}
 }

@@ -7,9 +7,11 @@ import java.util.logging.Logger;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.bebehp.bousaistation.Reference;
+
 public class Log {
 
-	public static Logger logger = Logger.getLogger("BousaiStation");
+	public static Logger logger = Logger.getLogger(Reference.ID);
 
 	public static void init(final LogOutput console) {
 		System.setOut(new PrintStream(console, true));
