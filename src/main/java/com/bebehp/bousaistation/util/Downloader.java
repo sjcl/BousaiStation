@@ -1,4 +1,4 @@
-package com.bebehp.bousaistation;
+package com.bebehp.bousaistation.util;
 
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -27,6 +27,9 @@ import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
+
+import com.bebehp.bousaistation.BousaiStation;
+import com.bebehp.bousaistation.Reference;
 
 public class Downloader {
 	public static Downloader downloader = new Downloader();

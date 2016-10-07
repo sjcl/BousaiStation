@@ -93,7 +93,6 @@ public class DepLoader {
 
 	public void download() {
 		File downloadingFile = null;
-		FileOutputStream fos = null;
 		final long startTime = System.currentTimeMillis();
 		for (final Dependencies dep : this.dlDeps) {
 			System.out.println("Downloading: " + dep.getRemote());
@@ -110,24 +109,18 @@ public class DepLoader {
 					throw new RuntimeException();
 
 				final InputStream is = connection.getInputStream();
-				fos = new FileOutputStream(downloadingFile);
-
-				final byte[] buffer = new byte[4096];
-				int n = 0;
-				while (-1 != (n = is.read(buffer)))
-					fos.write(buffer, 0, n);
-			} catch (final Exception e) {
+				if (downloadingFile != null)
+					try (FileOutputStream fos = new FileOutputStream(downloadingFile)) {
+						final byte[] buffer = new byte[4096];
+						int n = 0;
+						while (-1 != (n = is.read(buffer)))
+							fos.write(buffer, 0, n);
+					}
+			} catch (final IOException e) {
 				Log.warn(e);
 				System.out.println("A download error occured: " + dep.getLocal());
 				if (downloadingFile != null)
 					downloadingFile.delete();
-			} finally {
-				try {
-					if (fos != null)
-						fos.close();
-				} catch (final IOException e) {
-					Log.warn(e);
-				}
 			}
 		}
 		final long endTime = System.currentTimeMillis()-startTime;

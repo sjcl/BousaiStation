@@ -1,4 +1,4 @@
-package com.bebehp.bousaistation;
+package com.bebehp.bousaistation.util;
 
 import java.io.File;
 

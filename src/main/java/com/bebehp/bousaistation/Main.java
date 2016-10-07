@@ -3,6 +3,8 @@ package com.bebehp.bousaistation;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
+import com.bebehp.bousaistation.util.OperatingSystem;
+
 public class Main extends JFrame {
 
 	public static void main(final String[] args) {
