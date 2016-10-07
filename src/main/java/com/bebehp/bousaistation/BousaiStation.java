@@ -56,21 +56,28 @@ public class BousaiStation {
 		System.out.println("System.getProperty('sun.arch.data.model') == '" + SUN_ARCH_DATA_MODEL + "'");
 		Log.line();
 
+		if (!DATA_DIR.exists())
+			if (DATA_DIR.mkdirs())
+				System.out.println("mkdir: " + DATA_DIR);
+
 		System.out.println("Check Dependencies");
-		if (DepLoader.INSTANCE.readCSV().checkDep().foundDLTask()) {
-			System.out.println("Found the download tasks");
+		if (!DepLoader.INSTANCE.readCSV().checkDep().depDLTaskListIsEmpty()) {
+			Log.line();
 			DepLoader.INSTANCE.download();
 		} else {
 			System.out.println("Dependencies will all present");
 		}
-		if (!DepLoader.INSTANCE.getDeps().isEmpty()) {
+
+		if (!DepLoader.INSTANCE.depListIsEmpty()) {
 			Log.line();
 			DepLoader.INSTANCE.addClassPath();
 		}
+
+		Log.line();
 		System.out.println("Starting " + Reference.NAME);
 
 		try {
-			Thread.sleep(1500L);
+			Thread.sleep(2000L);
 		} catch (final InterruptedException e) {
 			Log.warn(e);
 		}

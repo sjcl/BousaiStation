@@ -11,6 +11,11 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
+jar {
+  manifest.attributes 'Main-Class': 'com.bebehp.bousaistation.Main'
+  // from configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
+}
+
 // In this section you declare where to find the dependencies of your project
 repositories {
     mavenCentral()

@@ -20,12 +20,17 @@ import com.bebehp.bousaistation.log.Log;
 
 public class DepLoader {
 	public static DepLoader INSTANCE = new DepLoader();
-	public static File libDir = new File(BousaiStation.DATA_DIR, "lib");
+	public File libDir;
 
 	private LinkedList<Dependencies> deps;
+	private final LinkedList<Dependencies> dlDeps;
 
 	private DepLoader() {
 		this.deps = new LinkedList<>();
+		this.dlDeps = new LinkedList<>();
+		this.libDir = new File(BousaiStation.DATA_DIR, "lib");
+		if (!this.libDir.exists())
+			this.libDir.mkdir();
 	}
 
 	public LinkedList<Dependencies> getDeps() {
@@ -37,15 +42,17 @@ public class DepLoader {
 	}
 
 	public DepLoader readCSV() {
-		final InputStream is = getClass().getResourceAsStream("dep.info");
+		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("dep.info");
 		if (is != null) {
 			BufferedReader br;
 			try {
 				br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
 				String line;
 				while((line = br.readLine()) != null) {
-					final String[] dep = line.split(",");
-					this.deps.add(new Dependencies(dep[0], dep[1]));
+					final String[] depLine = line.split(",");
+					final Dependencies dep = new Dependencies(depLine[0], depLine[1]);
+					this.deps.add(dep);
+					this.dlDeps.add(dep);
 				}
 				return this;
 			} catch (final UnsupportedEncodingException e) {
@@ -64,30 +71,34 @@ public class DepLoader {
 	}
 
 	public DepLoader checkDep() {
-		final Iterator<Dependencies> it = this.deps.iterator();
+		final Iterator<Dependencies> it = this.dlDeps.iterator();
 		while (it.hasNext()) {
 			final Dependencies dep = it.next();
-			final File file = new File(libDir, dep.getLocal());
+			final File file = new File(this.libDir, dep.getLocal());
 			if (file.exists())
 				it.remove();
 			else
-				Log.info("Not Found: ", dep.getLocal());
+				System.out.println("Not Found: " + dep.getLocal());
 		}
 		return this;
 	}
 
-	public boolean foundDLTask() {
-		return !this.deps.isEmpty();
+	public boolean depListIsEmpty() {
+		return this.deps.isEmpty();
+	}
+
+	public boolean depDLTaskListIsEmpty() {
+		return this.dlDeps.isEmpty();
 	}
 
 	public void download() {
 		File downloadingFile = null;
 		FileOutputStream fos = null;
 		final long startTime = System.currentTimeMillis();
-		for (final Dependencies dep : this.deps) {
+		for (final Dependencies dep : this.dlDeps) {
 			System.out.println("Downloading: " + dep.getRemote());
 			try {
-				downloadingFile = new File(libDir, dep.getLocal());
+				downloadingFile = new File(this.libDir, dep.getLocal());
 				final URL remote = new URL(dep.getRemote());
 
 				final HttpURLConnection connection = (HttpURLConnection) remote.openConnection();
