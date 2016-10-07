@@ -145,8 +145,11 @@ public class DepLoader {
 			method.setAccessible(true);
 
 			for (final Dependencies dep : this.deps) {
-				System.out.println("AddClassPath: " + dep.getLocal());
-				method.invoke(getClass().getClassLoader(), new File(dep.getLocal()).toURI().toURL());
+				final File file = new File(dep.getLocal());
+				if (file.exists()) {
+					System.out.println("AddClassPath: " + dep.getLocal());
+					method.invoke(getClass().getClassLoader(), file.toURI().toURL());
+				}
 			}
 		} catch (final Exception e) {
 			Log.fatal(e);
