@@ -12,6 +12,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.DefaultCaret;
 
 import com.bebehp.bousaistation.deploader.DepLoader;
 import com.bebehp.bousaistation.log.Log;
@@ -100,6 +101,8 @@ public class BousaiStation {
 		final JTextArea area = new JTextArea();
 		area.setEditable(false);
 		area.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+		final DefaultCaret caret = (DefaultCaret) area.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
 		final JScrollPane scrollpane = new JScrollPane(area,
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);

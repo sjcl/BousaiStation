@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -43,10 +42,8 @@ public class DepLoader {
 
 	public DepLoader readCSV() {
 		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("dep.info");
-		if (is != null) {
-			BufferedReader br;
-			try {
-				br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+		if (is != null)
+			try (final BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"))) {
 				String line;
 				while((line = br.readLine()) != null) {
 					final String[] depLine = line.split(",");
@@ -54,19 +51,9 @@ public class DepLoader {
 					this.deps.add(dep);
 					this.dlDeps.add(dep);
 				}
-				return this;
-			} catch (final UnsupportedEncodingException e) {
+			} catch (final IOException e) {
 				Log.warn(e);
-			} catch (final IOException e1) {
-				Log.warn(e1);
-			} finally {
-				try {
-					is.close();
-				} catch (final IOException e) {
-					Log.warn(e);
-				}
 			}
-		}
 		return this;
 	}
 
@@ -92,36 +79,36 @@ public class DepLoader {
 	}
 
 	public void download() {
-		File downloadingFile = null;
 		final long startTime = System.currentTimeMillis();
+		File downloadingFile = null;
+		HttpURLConnection connection = null;
 		for (final Dependencies dep : this.dlDeps) {
-			System.out.println("Downloading: " + dep.getRemote());
 			try {
+				System.out.println("Downloading: " + dep.getRemote());
 				downloadingFile = new File(this.libDir, dep.getLocal());
 				final URL remote = new URL(dep.getRemote());
-
-				final HttpURLConnection connection = (HttpURLConnection) remote.openConnection();
+				connection = (HttpURLConnection) remote.openConnection();
 				connection.setConnectTimeout(10000);
 				connection.setReadTimeout(10000);
-				connection.setRequestProperty("User-Agent", Reference.ID + " Downloader");
+				connection.setRequestProperty("User-Agent", Reference.ID);
 
 				if (connection.getResponseCode() != HttpURLConnection.HTTP_OK)
 					throw new RuntimeException();
-
-				final InputStream is = connection.getInputStream();
-				if (downloadingFile != null)
-					try (FileOutputStream fos = new FileOutputStream(downloadingFile)) {
-						final byte[] buffer = new byte[4096];
-						int n = 0;
-						while (-1 != (n = is.read(buffer)))
-							fos.write(buffer, 0, n);
-					}
 			} catch (final IOException e) {
 				Log.warn(e);
-				System.out.println("A download error occured: " + dep.getLocal());
-				if (downloadingFile != null)
-					downloadingFile.delete();
+				System.out.println("A connection error occured: " + dep.getRemote());
 			}
+
+			if (downloadingFile != null && connection != null)
+				try (FileOutputStream fos = new FileOutputStream(downloadingFile); InputStream is = connection.getInputStream()) {
+					final byte[] buffer = new byte[4096];
+					int n = 0;
+					while (-1 != (n = is.read(buffer)))
+						fos.write(buffer, 0, n);
+				} catch (final IOException e) {
+					System.out.println("A download error occured: " + dep.getLocal());
+					downloadingFile.delete();
+				}
 		}
 		final long endTime = System.currentTimeMillis()-startTime;
 		System.out.println("All of the download is complete");
@@ -138,7 +125,7 @@ public class DepLoader {
 			method.setAccessible(true);
 
 			for (final Dependencies dep : this.deps) {
-				final File file = new File(dep.getLocal());
+				final File file = new File(this.libDir, dep.getLocal());
 				if (file.exists()) {
 					System.out.println("AddClassPath: " + dep.getLocal());
 					method.invoke(getClass().getClassLoader(), file.toURI().toURL());
