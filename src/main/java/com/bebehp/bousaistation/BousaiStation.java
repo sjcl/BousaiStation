@@ -35,7 +35,7 @@ public class BousaiStation {
 	public BousaiStation(final JFrame frame) {
 		station = this;
 		this.frame = frame;
-		this.logArea = getLogArea();
+		this.logArea = createLogArea();
 	}
 
 	public JFrame getFrame() {
@@ -97,7 +97,7 @@ public class BousaiStation {
 
 	}
 
-	public JScrollPane getLogArea() {
+	public JScrollPane createLogArea() {
 		final JTextArea area = new JTextArea();
 		area.setEditable(false);
 		area.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
